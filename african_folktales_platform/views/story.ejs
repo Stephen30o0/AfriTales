@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= story.title %></title>
+</head>
+<body>
+  <h1><%= story.title %></h1>
+  <p>Author: <%= story.author %></p>
+  <p><%= story.content %></p>
+
+  <% if (user) { %>
+    <form action="/stories/<%= story._id %>/rate" method="post">
+      <label for="rating">Rate this story:</label>
+      <select name="rating" id="rating">
+        <option value="1">1 - Poor</option>
+        <option value="2">2 - Fair</option>
+        <option value="3">3 - Good</option>
+        <option value="4">4 - Very Good</option>
+        <option value="5">5 - Excellent</option>
+      </select>
+      <button type="submit">Submit Rating</button>
+    </form>
+
+    <form action="/stories/<%= story._id %>/comment" method="post">
+      <label for="comment">Add a comment:</label>
+      <input type="text" name="comment" id="comment" required>
+      <button type="submit">Submit Comment</button>
+    </form>
+  <% } else { %>
+    <p><a href="/login">Login</a> or <a href="/register">Register</a> to rate and comment on this story</p>
+  <% } %>
+
+  <% if (story.ratings.length > 0) { %>
+    <h2>Story Ratings</h2>
+    <ul>
+      <% story.ratings.forEach((rating) => { %>
+        <li><%= rating.rating %> by <%= rating.user.username %></li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No ratings yet</p>
+  <% } %>
+
+  <% if (story.comments.length > 0) { %>
+    <h2>Story Comments</h2>
+    <ul>
+      <% story.comments.forEach((comment) => { %>
+        <li><%= comment.comment %> by <%= comment.user.username %></li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No comments yet</p>
+  <% } %>
+</body>
+</html>
+
