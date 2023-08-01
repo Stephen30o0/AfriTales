@@ -6,6 +6,7 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const path = require('path');
 const methodOverride = require('method-override');
+const storiesRouter = require('./routes/stories');
 
 // Load environment variables from .env file
 require('dotenv').config();

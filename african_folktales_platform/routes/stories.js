@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Story = require('../models/Story'); // Adjust the path to your Story model file
+const Story = require('../models/Story'); 
 const mongoose = require('mongoose');
-
+const ensureAuthenticated = require('../config/auth').ensureAuthenticated;
+ 
+console.log(ensureAuthenticated);
 
 // Route to display all stories on the homepage
 router.get('/', async (req, res) => {
@@ -101,6 +103,32 @@ router.post('/:id/comment', async (req, res) => {
     res.redirect('/stories/' + req.params.id);
   }
 });
+
+
+// Create New Story Form
+router.get('/new', ensureAuthenticated, (req, res) => {
+  res.render('new_story', { title: 'Create New Story' });
+});
+
+// Create New Story
+router.post('/new', ensureAuthenticated, async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const author = req.user.username; // Assuming you store the username in the user object
+
+    // Create a new story in the database
+    const newStory = new Story({ title, content, author });
+    await newStory.save();
+
+    req.flash('success_msg', 'Story created successfully.');
+    res.redirect('/dashboard'); // Redirect to a page after the story is created
+  } catch (err) {
+    console.error('Error creating story:', err);
+    req.flash('error_msg', 'An error occurred while creating the story. Please try again.');
+    res.redirect('/stories/new'); // Redirect back to the create story page on error
+  }
+});
+
 
 module.exports = router;
 

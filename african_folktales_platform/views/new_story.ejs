@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create New Story</title>
+</head>
+<body>
+  <h1>Create New Story</h1>
+  <form action="/stories/new" method="POST">
+    <label for="title">Title:</label>
+    <input type="text" name="title" id="title" required>
+
+    <label for="content">Content:</label>
+    <textarea name="content" id="content" rows="10" required></textarea>
+
+    <input type="submit" value="Submit">
+  </form>
+</body>
+</html>
+
