@@ -20,6 +20,7 @@
         <li>
           <a href="/stories/<%= story._id %>"><%= story.title %></a>
           <span>Author: <%= story.author %></span>
+          <span>Rating: <%= story.ratings.length > 0 ? (story.ratings.reduce((sum, r) => sum + r.rating, 0) / story.ratings.length).toFixed(1) : 'N/A' %></span>
         </li>
       <% }); %>
     </ul>

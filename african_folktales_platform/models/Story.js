@@ -1,30 +1,12 @@
-// models/Story.js
-
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-// Story schema
-const storySchema = new Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  author: {
-    type: String,
-    required: true,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
+const storySchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  author: { type: String, required: true },
+  content: { type: String, required: true },
+  ratings: [{ rating: Number, user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } }],
+  comments: [{ comment: String, user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } }],
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
 const Story = mongoose.model('Story', storySchema);

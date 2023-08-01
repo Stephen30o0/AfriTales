@@ -8,7 +8,9 @@
   <p>Author: <%= story.author %></p>
   <p><%= story.content %></p>
 
-  <% if (user) { %>
+  <% if (!user) { %>
+    <p>Please <a href="/login">Login</a> or <a href="/register">Register</a> to rate and comment on this story</p>
+  <% } else { %>
     <form action="/stories/<%= story._id %>/rate" method="post">
       <label for="rating">Rate this story:</label>
       <select name="rating" id="rating">
@@ -26,8 +28,6 @@
       <input type="text" name="comment" id="comment" required>
       <button type="submit">Submit Comment</button>
     </form>
-  <% } else { %>
-    <p><a href="/login">Login</a> or <a href="/register">Register</a> to rate and comment on this story</p>
   <% } %>
 
   <% if (story.ratings.length > 0) { %>

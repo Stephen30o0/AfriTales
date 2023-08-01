@@ -1,19 +1,36 @@
-<!-- storyDetails.ejs -->
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Details</title>
+  <title><%= story.title %></title>
 </head>
-
 <body>
-    <h1>Story Details</h1>
-    <!-- Add story details here -->
-</body>
+  <h1><%= story.title %></h1>
+  <p><%= story.content %></p>
+  <% if (user) { %>
+    <form action="/stories/<%= story._id %>/rate" method="post">
+      <label for="rating">Rate this story (1-5)</label>
+      <input type="number" id="rating" name="rating" min="1" max="5" step="0.1" required>
+      <button type="submit">Submit Rating</button>
+    </form>
+    <form action="/stories/<%= story._id %>/comment" method="post">
+      <label for="comment">Leave a comment</label>
+      <textarea id="comment" name="comment" rows="3" required></textarea>
+      <button type="submit">Submit Comment</button>
+    </form>
+  <% } else { %>
+    <p>Please <a href="/login">login</a> to rate and comment on this story.</p>
+  <% } %>
 
+  <% if (story.comments.length > 0) { %>
+    <h2>Comments</h2>
+    <ul>
+      <% story.comments.forEach((comment) => { %>
+        <li><%= comment %></li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No comments yet</p>
+  <% } %>
+</body>
 </html>
 

@@ -1,19 +1,24 @@
-<!-- dashboard.ejs -->
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+  <title>Dashboard</title>
 </head>
-
 <body>
-    <h1>User Dashboard</h1>
-    <!-- Add user dashboard content here -->
+  <h1>Welcome, <%= user.username %>!</h1>
+  <a href="/stories/new">Create a Story</a>
+  <h2>Your Stories</h2>
+  <% if (stories.length > 0) { %>
+    <ul>
+      <% stories.forEach((story) => { %>
+        <li>
+          <a href="/stories/<%= story._id %>"><%= story.title %></a>
+          <span>Rating: <%= story.ratings.length > 0 ? (story.ratings.reduce((acc, curr) => acc + curr.rating, 0) / story.ratings.length).toFixed(1) : 'N/A' %></span>
+        </li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No stories submitted yet</p>
+  <% } %>
 </body>
-
 </html>
 

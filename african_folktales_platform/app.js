@@ -1,37 +1,17 @@
 // app.js
-
 const express = require('express');
 const mongoose = require('mongoose');
-const passport = require('passport');
 const session = require('express-session');
+const passport = require('passport');
 const flash = require('connect-flash');
-const bcrypt = require('bcryptjs');
+const path = require('path');
+const methodOverride = require('method-override');
 
-// Initialize Express application
+// Load environment variables from .env file
+require('dotenv').config();
+
+// Initialize Express app
 const app = express();
-
-// Middleware for body parsing
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-// Static files
-app.use(express.static('public'));
-
-// Express session middleware
-app.use(
-  session({
-    secret: 'secret_key',
-    resave: true,
-    saveUninitialized: true,
-  })
-);
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Connect flash middleware
-app.use(flash());
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/african_folktales', {
@@ -43,6 +23,22 @@ mongoose.connect('mongodb://localhost:27017/african_folktales', {
 
 // Passport configuration
 require('./config/passport')(passport);
+
+// Middlewares
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(methodOverride('_method'));
+
+// Add the express-session middleware here
+app.use(session({
+  secret: 'secret',
+  resave: true,
+  saveUninitialized: true,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
 // Set up global variables for flash messages and user
 app.use((req, res, next) => {
@@ -56,9 +52,9 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Set the view engine to EJS
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Routes
 app.use('/', require('./routes/index'));

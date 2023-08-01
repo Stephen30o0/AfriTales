@@ -1,78 +1,105 @@
-// routes/stories.js
-
 const express = require('express');
 const router = express.Router();
-const { ensureAuthenticated } = require('../config/auth');
-const Story = require('../models/Story');
+const Story = require('../models/Story'); // Adjust the path to your Story model file
+const mongoose = require('mongoose');
 
-// Get all stories
-router.get('/stories', (req, res) => {
-  // Find all stories
-  Story.find()
-    .then((stories) => res.json(stories))
-    .catch((err) => res.status(500).json({ message: 'Failed to fetch stories', error: err }));
+
+// Route to display all stories on the homepage
+router.get('/', async (req, res) => {
+  try {
+    const stories = await Story.find();
+    res.render('index', { title: 'African Folktales and Legends', user: req.user, stories });
+  } catch (err) {
+    console.error('Error fetching stories:', err);
+    req.flash('error_msg', 'An error occurred while fetching stories. Please try again.');
+    res.redirect('/');
+  }
 });
 
-// Get a specific story by ID
-router.get('/stories/:id', (req, res) => {
-  const storyId = req.params.id;
+// View Single Story
+router.get('/:id', async (req, res) => {
+  try {
+    const storyId = req.params.id;
 
-  // Find the story by ID
-  Story.findById(storyId)
-    .then((story) => {
-      if (!story) {
-        return res.status(404).json({ message: 'Story not found' });
-      }
-      return res.json(story);
-    })
-    .catch((err) => res.status(500).json({ message: 'Failed to fetch story', error: err }));
+    // Check if the storyId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(storyId)) {
+      req.flash('error_msg', 'Invalid story ID.');
+      return res.redirect('/stories');
+    }
+
+    // Find the story by its ID
+    const story = await Story.findById(storyId).populate('ratings.user', 'username').populate('comments.user', 'username');
+    if (!story) {
+      req.flash('error_msg', 'Story not found.');
+      return res.redirect('/stories');
+    }
+
+    res.render('story', { title: story.title, user: req.user, story });
+  } catch (err) {
+    console.error('Error fetching story:', err);
+    req.flash('error_msg', 'An error occurred while fetching the story. Please try again.');
+    res.redirect('/stories');
+  }
 });
 
-// Rate a story
-router.post('/stories/:id/rate', ensureAuthenticated, (req, res) => {
-  const userId = req.user.id;
-  const storyId = req.params.id;
-  const { rating } = req.body;
 
-  // Find the story by ID
-  Story.findById(storyId)
-    .then((story) => {
-      if (!story) {
-        return res.status(404).json({ message: 'Story not found' });
-      }
+// Submit Story Rating
+router.post('/:id/rate', async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const storyId = req.params.id;
 
-      // Check if the user has already rated the story
-      if (story.ratings.some((rate) => rate.user.toString() === userId)) {
-        return res.status(400).json({ message: 'You have already rated this story' });
-      }
+    // Find the story by its ID
+    const story = await Story.findById(storyId);
+    if (!story) {
+      req.flash('error_msg', 'Story not found.');
+      return res.redirect('/stories/' + storyId);
+    }
 
-      // Add the rating to the story
-      story.ratings.push({ user: userId, rating });
-      return story.save();
-    })
-    .then(() => res.json({ message: 'Story rated successfully' }))
-    .catch((err) => res.status(500).json({ message: 'Failed to rate story', error: err }));
+    // Check if the user has already rated this story
+    const existingRating = story.ratings.find(r => r.user.toString() === req.user._id.toString());
+    if (existingRating) {
+      req.flash('error_msg', 'You have already rated this story.');
+      return res.redirect('/stories/' + storyId);
+    }
+
+    // Add the new rating to the story
+    story.ratings.push({ user: req.user._id, rating });
+    await story.save();
+
+    req.flash('success_msg', 'Rating submitted successfully.');
+    res.redirect('/stories/' + storyId);
+  } catch (err) {
+    console.error('Error submitting rating:', err);
+    req.flash('error_msg', 'An error occurred while submitting the rating. Please try again.');
+    res.redirect('/stories/' + req.params.id);
+  }
 });
 
-// Comment on a story
-router.post('/stories/:id/comment', ensureAuthenticated, (req, res) => {
-  const userId = req.user.id;
-  const storyId = req.params.id;
-  const { comment } = req.body;
+// Submit Story Comment
+router.post('/:id/comment', async (req, res) => {
+  try {
+    const { comment } = req.body;
+    const storyId = req.params.id;
 
-  // Find the story by ID
-  Story.findById(storyId)
-    .then((story) => {
-      if (!story) {
-        return res.status(404).json({ message: 'Story not found' });
-      }
+    // Find the story by its ID
+    const story = await Story.findById(storyId);
+    if (!story) {
+      req.flash('error_msg', 'Story not found.');
+      return res.redirect('/stories/' + storyId);
+    }
 
-      // Add the comment to the story
-      story.comments.push({ user: userId, comment });
-      return story.save();
-    })
-    .then(() => res.json({ message: 'Comment added successfully' }))
-    .catch((err) => res.status(500).json({ message: 'Failed to add comment', error: err }));
+    // Add the new comment to the story
+    story.comments.push({ user: req.user._id, comment });
+    await story.save();
+
+    req.flash('success_msg', 'Comment submitted successfully.');
+    res.redirect('/stories/' + storyId);
+  } catch (err) {
+    console.error('Error submitting comment:', err);
+    req.flash('error_msg', 'An error occurred while submitting the comment. Please try again.');
+    res.redirect('/stories/' + req.params.id);
+  }
 });
 
 module.exports = router;
