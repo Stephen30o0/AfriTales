@@ -1,31 +1,26 @@
-// seed.js
-
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Story = require('./models/Story');
 
-// Connect to MongoDB
 mongoose.connect('mongodb://localhost:27017/african_folktales', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-// Define the sample stories
 const sampleStories = [
   {
     title: 'The Lion and the Mouse',
-    author: 'Aesop',
+    author: 'aesop',
     content: 'Once upon a time in the jungle...',
   },
   {
     title: 'The Tortoise and the Hare',
-    author: 'African Proverb',
+    author: 'africanproverb',
     content: 'In the vast savannah...',
   },
   // Add more sample stories here
 ];
 
-// Function to seed the database with sample stories
 const seedDatabase = async () => {
   try {
     // Clear existing stories from the database (optional)
@@ -34,14 +29,22 @@ const seedDatabase = async () => {
     // Fetch all users from the database
     const users = await User.find({});
 
-    // Map the users to get an array of user IDs
-    const userIds = users.map((user) => user._id);
+    // Map the users to get an object of lowercase username to user ID mappings
+    const usernameToUserIdMap = users.reduce((map, user) => {
+      map[user.username.toLowerCase()] = user._id;
+      return map;
+    }, {});
+
+    console.log('Found users:', users);
+    console.log('Username to User ID mappings:', usernameToUserIdMap);
 
     // Associate the user IDs with sample stories
-    const sampleStoriesWithUserIds = sampleStories.map((story, index) => ({
+    const sampleStoriesWithUserIds = sampleStories.map((story) => ({
       ...story,
-      user: userIds[index % userIds.length], // Assign the user ID to the story
+      user: usernameToUserIdMap[story.author.toLowerCase()], // Assign the user ID to the story
     }));
+
+    console.log('Sample stories with User IDs:', sampleStoriesWithUserIds);
 
     // Insert the sample stories into the database
     await Story.insertMany(sampleStoriesWithUserIds);
@@ -54,7 +57,5 @@ const seedDatabase = async () => {
   }
 };
 
-// Call the seedDatabase function to insert sample stories
 seedDatabase();
-
 

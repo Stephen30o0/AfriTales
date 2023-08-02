@@ -4,6 +4,17 @@
   <title>African Folktales and Legends</title>
 </head>
 <body>
+  <!-- Display flash messages -->
+  <% if (success_msg) { %>
+    <div class="success-msg">
+      <%= success_msg %>
+    </div>
+  <% } %>
+  <% if (error_msg) { %>
+    <div class="error-msg">
+      <%= error_msg %>
+    </div>
+    <% } %>
   <h1>Welcome to African Folktales and Legends</h1>
   <% if (user) { %>
     <p>Hello, <%= user.username %></p>

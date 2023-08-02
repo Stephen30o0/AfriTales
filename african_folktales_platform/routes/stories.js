@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 const Story = require('../models/Story'); 
 const mongoose = require('mongoose');
 const ensureAuthenticated = require('../config/auth').ensureAuthenticated;
@@ -18,10 +19,53 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Create New Story Form
+router.get('/new', ensureAuthenticated, (req, res) => {
+  res.render('new_story', { title: 'Create New Story' });
+});
+
+// Create New Story
+router.post('/new', ensureAuthenticated, async (req, res) => {
+  try {
+    console.log(req.user);	  
+    const { title, content } = req.body;
+
+    // Assuming the user's name is "Aesop" for this example
+    const authorName = "Aesop";
+
+    // Find the author's user object based on their name
+    const authorUser = await User.findOne({ username: authorName });
+
+    if (!authorUser) {
+      // Handle the case where the author user is not found
+      console.error('Author user not found');
+      req.flash('error_msg', 'Author user not found');
+      return res.redirect('/dashboard');
+    }
+
+    // Add the new story to the database
+    const newStory = new Story({
+      title,
+      content,
+      author: req.user._id,
+      user: req.user._id, 
+    });
+    await newStory.save();
+
+    req.flash('success_msg', 'Story created successfully.');
+    res.redirect('/dashboard');
+  } catch (err) {
+    console.error('Error creating story:', err);
+    req.flash('error_msg', 'An error occurred while creating the story. Please try again.');
+    res.redirect('/dashboard');
+  }
+});
+
 // View Single Story
 router.get('/:id', async (req, res) => {
   try {
     const storyId = req.params.id;
+    console.log('Story ID:', storyId);
 
     // Check if the storyId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(storyId)) {
@@ -59,8 +103,8 @@ router.post('/:id/rate', async (req, res) => {
     }
 
     // Check if the user has already rated this story
-    const existingRating = story.ratings.find(r => r.user.toString() === req.user._id.toString());
-    if (existingRating) {
+    const existingRatingIndex = story.ratings.findIndex(r => r.user.toString() === req.user._id.toString());
+    if (existingRatingIndex !== -1) {
       req.flash('error_msg', 'You have already rated this story.');
       return res.redirect('/stories/' + storyId);
     }
@@ -77,6 +121,7 @@ router.post('/:id/rate', async (req, res) => {
     res.redirect('/stories/' + req.params.id);
   }
 });
+
 
 // Submit Story Comment
 router.post('/:id/comment', async (req, res) => {
@@ -103,32 +148,6 @@ router.post('/:id/comment', async (req, res) => {
     res.redirect('/stories/' + req.params.id);
   }
 });
-
-
-// Create New Story Form
-router.get('/new', ensureAuthenticated, (req, res) => {
-  res.render('new_story', { title: 'Create New Story' });
-});
-
-// Create New Story
-router.post('/new', ensureAuthenticated, async (req, res) => {
-  try {
-    const { title, content } = req.body;
-    const author = req.user.username; // Assuming you store the username in the user object
-
-    // Create a new story in the database
-    const newStory = new Story({ title, content, author });
-    await newStory.save();
-
-    req.flash('success_msg', 'Story created successfully.');
-    res.redirect('/dashboard'); // Redirect to a page after the story is created
-  } catch (err) {
-    console.error('Error creating story:', err);
-    req.flash('error_msg', 'An error occurred while creating the story. Please try again.');
-    res.redirect('/stories/new'); // Redirect back to the create story page on error
-  }
-});
-
 
 module.exports = router;
 

@@ -88,23 +88,34 @@ router.get('/logout', (req, res) => {
 });
 
 // Dashboard
-router.get('/dashboard', ensureAuthenticated, (req, res) => {
-  // Fetch user's stories
-  Story.find({ user: req.user.id })
-    .then((stories) => {
-      // Render the dashboard view and pass the user and stories data to the template
-      res.render('dashboard', {
-        title: 'Dashboard',
-        user: req.user,
-        stories: stories,
-      });
-    })
-    .catch((err) => {
-      // Handle any errors that occur during the database query (optional)
-      console.error('Error fetching stories:', err);
-      res.status(500).json({ message: 'Failed to fetch stories', error: err });
+router.get('/dashboard', ensureAuthenticated, async (req, res) => {
+  try {
+    // Fetch user's stories
+    const userStories = await Story.find({ user: req.user.id }).lean();
+
+    // Fetch all public stories from the database
+    const publicStories = await Story.find({ user: { $ne: req.user.id } }).lean();
+   
+    // Add these console.log statements
+    console.log('User Stories:', userStories);
+    console.log('Public Stories:', publicStories);
+
+    // Combine user's stories and public stories
+    const allStories = [...userStories, ...publicStories]
+
+    // Render the dashboard view and pass the user and stories data to the template
+    res.render('dashboard', {
+      title: 'Dashboard',
+      user: req.user,
+      stories: allStories,
     });
+  } catch (err) {
+    // Handle any errors that occur during the database query
+    console.error('Error fetching stories:', err);
+    res.status(500).json({ message: 'Failed to fetch stories', error: err });
+  }
 });
+
 
 // Get all stories for a specific user
 router.get('/stories', ensureAuthenticated, (req, res) => {
@@ -117,12 +128,12 @@ router.get('/stories', ensureAuthenticated, (req, res) => {
 });
 
 // Create New Story Form
-router.get('/stories/new', ensureAuthenticated, (req, res) => {
+router.get('/new', ensureAuthenticated, (req, res) => {
   res.render('new_story', { title: 'Create New Story' });
 });
 
 // Create New Story
-router.post('/stories/new', ensureAuthenticated, async (req, res) => {
+router.post('/new', ensureAuthenticated, async (req, res) => {
   try {
     const { title, content } = req.body;
 
@@ -130,7 +141,6 @@ router.post('/stories/new', ensureAuthenticated, async (req, res) => {
     const newStory = new Story({
       title,
       content,
-      author: req.user.username, // Assuming the user's username is stored in req.user.username
       user: req.user._id, // Assuming the user's ID is stored in req.user._id
     });
 
@@ -142,7 +152,7 @@ router.post('/stories/new', ensureAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error creating story:', err);
     req.flash('error_msg', 'An error occurred while creating the story. Please try again.');
-    res.redirect('/users/stories/new');
+    res.redirect('/dashboard');
   }
 });
 
