@@ -7,6 +7,7 @@ const flash = require('connect-flash');
 const path = require('path');
 const methodOverride = require('method-override');
 const storiesRouter = require('./routes/stories');
+const Story = require('./models/Story');
 
 // Load environment variables from .env file
 require('dotenv').config();
@@ -61,6 +62,43 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/stories', require('./routes/stories'));
+
+// Middleware to ensure user is authenticated
+const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error_msg', 'Please log in to view this resource.');
+  res.redirect('/users/login');
+};
+
+// Route to handle displaying all public stories
+app.get('/dashboard', async (req, res) => {
+  try {
+    const publicStories = await Story.find({}).populate('user');
+    res.render('dashboard', { stories: publicStories });
+  } catch (err) {
+    console.error('Error fetching stories:', err);
+    req.flash('error_msg', 'Error fetching stories. Please try again later.');
+    res.redirect('/');
+  }
+});
+
+// Route to display a single story
+app.get('/stories/:id', async (req, res) => {
+  try {
+    const story = await Story.findById(req.params.id).populate('user');
+    if (!story) {
+      req.flash('error_msg', 'Story not found.');
+      return res.redirect('/dashboard');
+    }
+    res.render('story', { story });
+  } catch (err) {
+    console.error('Error fetching the story:', err);
+    req.flash('error_msg', 'Error fetching the story. Please try again later.');
+    res.redirect('/dashboard');
+  }
+});
 
 // Start the server
 const port = process.env.PORT || 3000;
