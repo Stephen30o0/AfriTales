@@ -1,43 +1,186 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>African Folktales and Legends</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: white;
+      padding: 1rem;
+    }
+
+    .logo {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+    }
+
+    .nav-links li {
+      margin-right: 1rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .welcome {
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .welcome-title {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .username {
+      font-weight: bold;
+    }
+
+    .auth-buttons .btn {
+      padding: 0.5rem 1rem;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      text-decoration: none;
+      margin-right: 1rem;
+      cursor: pointer;
+    }
+
+    .featured-stories {
+      background-color: #f4f4f4;
+      padding: 2rem 0;
+    }
+
+    .featured-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .story-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .story-item {
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 3px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .story-title {
+      font-size: 1.2rem;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .story-details {
+      display: block;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    footer {
+      background-color: #333;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <!-- Display flash messages -->
-  <% if (success_msg) { %>
-    <div class="success-msg">
-      <%= success_msg %>
+  <header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="/" class="logo">African Folktales</a>
+        <ul class="nav-links">
+          <% if (user) { %>
+            <li><a href="/logout">Logout</a></li>
+          <% } else { %>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+          <% } %>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <section class="welcome">
+    <div class="container">
+      <!-- Display flash messages -->
+      <% if (success_msg) { %>
+        <div class="success-msg">
+          <%= success_msg %>
+        </div>
+      <% } %>
+      <% if (error_msg) { %>
+        <div class="error-msg">
+          <%= error_msg %>
+        </div>
+      <% } %>
+      <h1 class="welcome-title">Welcome to African Folktales and Legends</h1>
+      <% if (user) { %>
+        <p>Hello, <span class="username"><%= user.username %></span></p>
+      <% } else { %>
+        <div class="auth-buttons">
+          <a href="/login" class="btn">Login</a>
+          <a href="/register" class="btn">Register</a>
+        </div>
+      <% } %>
     </div>
-  <% } %>
-  <% if (error_msg) { %>
-    <div class="error-msg">
-      <%= error_msg %>
-    </div>
-    <% } %>
-  <h1>Welcome to African Folktales and Legends</h1>
-  <% if (user) { %>
-    <p>Hello, <%= user.username %></p>
-    <a href="/logout">Logout</a>
-  <% } else { %>
-    <a href="/login">Login</a>
-    <a href="/register">Register</a>
-  <% } %>
+  </section>
 
   <% if (stories.length > 0) { %>
-    <h2>Featured Stories</h2>
-    <ul>
-      <% stories.forEach((story) => { %>
-        <li>
-          <a href="/stories/<%= story._id %>"><%= story.title %></a>
-          <span>Author: <%= story.author %></span>
-          <span>Rating: <%= story.ratings.length > 0 ? (story.ratings.reduce((sum, r) => sum + r.rating, 0) / story.ratings.length).toFixed(1) : 'N/A' %></span>
-        </li>
-      <% }); %>
-    </ul>
+    <section class="featured-stories">
+      <div class="container">
+        <h2 class="featured-title">Featured Stories</h2>
+        <ul class="story-list">
+          <% stories.forEach((story) => { %>
+            <li class="story-item">
+              <a href="/stories/<%= story._id %>" class="story-title"><%= story.title %></a>
+              <span class="story-details">
+                <span class="story-author">Author: <%= story.author %></span>
+                <span class="story-rating">Rating: <%= story.ratings.length > 0 ? (story.ratings.reduce((sum, r) => sum + r.rating, 0) / story.ratings.length).toFixed(1) : 'N/A' %></span>
+              </span>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </section>
   <% } else { %>
-    <p>No stories available</p>
+    <section class="no-stories">
+      <div class="container">
+        <p>No stories available</p>
+      </div>
+    </section>
   <% } %>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 African Folktales. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>
 

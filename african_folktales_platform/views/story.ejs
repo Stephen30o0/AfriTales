@@ -1,56 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= story.title %></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin: 0;
+      padding: 1rem 0;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    a {
+      text-decoration: none;
+      color: #333;
+      margin-right: 1rem;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+    }
+  </style>
 </head>
 <body>
-  <h1><%= story.title %></h1>
-  <p>Author: <%= story.author %></p>
-  <p><%= story.content %></p>
+  <div class="container">
+    <h1><%= story.title %></h1>
+    <p>Author: <%= story.author %></p>
+    <p><%= story.content %></p>
 
-  <% if (!user) { %>
-    <p>Please <a href="/login">Login</a> or <a href="/register">Register</a> to rate and comment on this story</p>
-  <% } else { %>
-    <form action="/stories/<%= story._id %>/rate" method="post">
-      <label for="rating">Rate this story:</label>
-      <select name="rating" id="rating">
-        <option value="1">1 - Poor</option>
-        <option value="2">2 - Fair</option>
-        <option value="3">3 - Good</option>
-        <option value="4">4 - Very Good</option>
-        <option value="5">5 - Excellent</option>
-      </select>
-      <button type="submit">Submit Rating</button>
-    </form>
+    <% if (!user) { %>
+      <p>Please <a href="/login">Login</a> or <a href="/register">Register</a> to rate and comment on this story</p>
+    <% } else { %>
+      <form action="/stories/<%= story._id %>/rate" method="post">
+        <label for="rating">Rate this story:</label>
+        <select name="rating" id="rating">
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Fair</option>
+          <option value="3">3 - Good</option>
+          <option value="4">4 - Very Good</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <button type="submit">Submit Rating</button>
+      </form>
 
-    <form action="/stories/<%= story._id %>/comment" method="post">
-      <label for="comment">Add a comment:</label>
-      <input type="text" name="comment" id="comment" required>
-      <button type="submit">Submit Comment</button>
-    </form>
-  <% } %>
+      <form action="/stories/<%= story._id %>/comment" method="post">
+        <label for="comment">Add a comment:</label>
+        <input type="text" name="comment" id="comment" required>
+        <button type="submit">Submit Comment</button>
+      </form>
+    <% } %>
 
-  <% if (story.ratings.length > 0) { %>
-    <h2>Story Ratings</h2>
-    <ul>
-      <% story.ratings.forEach((rating) => { %>
-        <li><%= rating.rating %> by <%= rating.user.username %></li>
-      <% }); %>
-    </ul>
-  <% } else { %>
-    <p>No ratings yet</p>
-  <% } %>
+    <% if (story.ratings.length > 0) { %>
+      <h2>Story Ratings</h2>
+      <ul>
+        <% story.ratings.forEach((rating) => { %>
+          <li><%= rating.rating %> by <%= rating.user.username %></li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No ratings yet</p>
+    <% } %>
 
-  <% if (story.comments.length > 0) { %>
-    <h2>Story Comments</h2>
-    <ul>
-      <% story.comments.forEach((comment) => { %>
-        <li><%= comment.comment %> by <%= comment.user.username %></li>
-      <% }); %>
-    </ul>
-  <% } else { %>
-    <p>No comments yet</p>
-  <% } %>
+    <% if (story.comments.length > 0) { %>
+      <h2>Story Comments</h2>
+      <ul>
+        <% story.comments.forEach((comment) => { %>
+          <li><%= comment.comment %> by <%= comment.user.username %></li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No comments yet</p>
+    <% } %>
+  </div>
 </body>
 </html>
 

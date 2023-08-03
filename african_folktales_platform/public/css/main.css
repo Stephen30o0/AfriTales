@@ -1,0 +1,107 @@
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Header Styles */
+#header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+}
+
+#header .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+}
+
+/* Main Content Styles */
+#main {
+    padding: 2rem;
+}
+
+.wrapper {
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.wrapper h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.content {
+    line-height: 1.6;
+}
+
+/* Form Styles */
+form {
+    margin-top: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 1rem;
+}
+
+select {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Footer Styles */
+#footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+}
+
+.icons {
+    list-style: none;
+    padding: 0;
+}
+
+.icons li {
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.icons a {
+    color: #fff;
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+    .container {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .wrapper h2 {
+        font-size: 1.5rem;
+    }
+}
+
