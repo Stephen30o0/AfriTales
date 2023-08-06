@@ -35,9 +35,6 @@ npm install
 Step 3: Set Up Environment Variables
 Create a .env file in the root directory and add the following environment variables:
 
-DATABASE_URI=mongodb://localhost:27017/your-database-name
-SECRET_KEY=your-secret-key
-Replace your-database-name with the name of your MongoDB database and your-secret-key with a secret key for session management.
 
 Running the Project
 Start the development server by running:
